@@ -1,95 +1,138 @@
 <script>
-import { v4 as uuidv4 } from "uuid";
+import LivrosApi from "@/api/livros.js";
+import AutoresApi from "@/api/autores.js";
+import CategoriasApi from "@/api/categorias.js";
+import EditorasApi from "@/api/editoras.js";
+const livrosApi = new LivrosApi();
+const autoresApi = new AutoresApi();
+const categoriasApi = new CategoriasApi();
+const editorasApi = new EditorasApi();
 export default {
   data() {
     return {
-      Livros: [
-        { id: "72b60663-4943-4f37-a782-3b0688d5b313", nome: "Livro 1", autor: "Pessoa 1", data: "XX-XX-20XX" },
-        { id: "e91ca40f-1b1c-40d9-a589-a6d74b42f6c5", nome: "Livro 2", autor: "Pessoa 2", data: "XX-XX-19XX" },
-        { id: "d181a6a6-fa46-426e-bd5a-9a9ee19356d6", nome: "Livro 3", autor: "Pessoa 3", data: "XX-XX-20XX" },
-        { id: "e0b9c7d6-06d5-405f-a674-0e4b286a6b6a", nome: "Livro 4", autor: "Pessoa 4", data: "XX-XX-20XX" },
-        { id: "0daa3bee-b872-4ca7-87ef-42481f434a9a", nome: "Livro 5", autor: "Pessoa 5", data: "XX-XX-19XX" },
-      ],
+      livro: {},
+      livros: [],
+      categoria: {},
+      categorias: [],
+      editora: {},
+      editoras: [],
+      autor: {},
+      autores: [],
     };
   },
+  async created() {
+    this.livros = await livrosApi.BuscarTodosOsLivros();
+    this.autores = await autoresApi.BuscarTodosOsAutores();
+    this.categorias = await categoriasApi.BuscarTodasAsCategorias();
+    this.editoras = await editorasApi.BuscarTodasAsEditoras();
+  },
   methods: {
-    salvar() {
-      if (this.novo_livro !== "") {
-        const novo_id = uuidv4();
-        this.Livros.push({
-          id: novo_id,
-          nome: this.novo_livro,
-          autor: this.livro_autor,
-          data: this.livro_data,
-          categoria: this.categoria_livro
-      });
-      this.novo_livro = "";
-      this.livro_autor = "";
-      this.livro_data = "";
-      this.categoria_livro = "";
-      }
+    emprestar() {
+      alert(
+        "Gostaria de fazer com esse botão diminuísse a contagem de livros no estoque em 1, e que ele mudasse pra um botão de devolução, que aumentaria o numero do estoque em 1"
+      );
     },
-    excluir(livro) {
-      const indice = this.Livros.indexOf(livro);
-      this.Livros.splice(indice, 1);
+    async salvar() {
+      if (this.livro.id) {
+        await livrosApi.AtualizarLivro(this.livro);
+      } else {
+        await livrosApi.AdicionarLivro(this.livro);
+      }
+      this.livros = await livrosApi.BuscarTodosOsLivros();
+      this.categorias = await categoriasApi.BuscarTodasAsCategorias();
+      this.editoras = await editorasApi.BuscarTodasAsEditoras();
+      this.autores = await autoresApi.BuscarTodosOsAutores();
+      this.livro = {};
+    },
+    async excluir(livro) {
+      await livrosApi.ExcluirLivro(livro.id);
+      this.livros = await livrosApi.BuscarTodosOsLivros();
+    },
+    editar(livro) {
+      Object.assign(this.livro, livro);
     },
   },
 };
 </script>
+
 <template>
   <div class="container">
     <div class="title">
-      <h2>Gerenciamento de Livros</h2>
+      <h2>Gerenciamento de livros</h2>
     </div>
-    <div class="form-input">
+    <div class="FormBox">
       <input
-        class="LivroInput"
-        placeholder="Nome:"
+        class="FormInput"
+        placeholder="Nome"
         type="text"
-        v-model="novo_livro"
+        v-model="livro.nome"
+        @keyup.enter="salvar"
       />
-      <br />
       <input
-        class="LivroInput"
-        placeholder="Autor:"
-        type="text"
-        v-model="livro_autor"
+        class="FormInput"
+        placeholder="Ano de lançamento"
+        type="number"
+        v-model="livro.data"
+        @keyup.enter="salvar"
       />
-      <br />
-      <input class="LivroInput" type="date" v-model="livro_data" />
-      <button class="BtnSalvar" @click="salvar">Salvar</button>
+      <input
+        class="FormInput"
+        placeholder="Preço (R$)"
+        type="number"
+        v-model="livro.preco"
+        @keyup.enter="salvar"
+      />
+      <input
+        class="FormInput"
+        placeholder="Quantidade no Estoque"
+        type="number"
+        v-model="livro.qtd"
+        @keyup.enter="salvar"
+      />
+      Editora:
+      <select class="FormInput" v-model="livro.editora">
+        <option
+          v-for="editora of editoras"
+          :key="editora.id"
+          :value="editora.nome"
+        >
+          {{ editora.nome }}
+        </option>
+      </select>
+      Autor:
+      <select class="FormInput" v-model="livro.autor">
+        <option disabled value="">Autor</option>
+        <option v-for="autor of autores" :key="autor.id" :value="autor.nome">
+          {{ autor.nome }}
+        </option>
+      </select>
+      <button @click="salvar" class="BtnSalvar">Adicionar</button>
     </div>
-    <select
-      class="form-select"
-      aria-label="Default select example"
-      v-model="categoria_livro"
-    >
-      <option selected>Categoria</option>
-      <option value="Romance">Romance</option>
-      <option value="Ação">Ação</option>
-      <option value="Biografia">Biografia</option>
-    </select>
-  </div>
-
-  <div class="LivroWrapper">
-    <div class="BoxLivro" v-for="Livros in Livros" :key="Livros.id">
-      <div>ID: {{ Livros.id }}</div>
-      <div>Nome: {{ Livros.nome }}</div>
-      <div>Autor: {{ Livros.autor }}</div>
-      <div>Data: {{ Livros.data }}</div>
-      <div>Categoria: {{ Livros.categoria }}</div>
-      <button class="BtnEdit">Editar</button>
-      <button class="BtnEdit" @click="excluir(Livros)">Excluir</button>
+    <div class="list-items">
+      <div class="BoxInfo" v-for="livro in livros" :key="livro.id">
+        <div>ID: {{ livro.id }}</div>
+        <div>Nome: {{ livro.nome }}</div>
+        <div>Preço: {{ livro.preco }}</div>
+        <div>Ano de Lançamento: {{ livro.data }}</div>
+        <div>Quantidade no Estoque: {{ livro.qtd }}</div>
+        <div>Editora: {{ livro.editora }}</div>
+        <div>Autor: {{ livro.autor }}</div>
+        <button class="BtnEdit" @click="editar(livro)">Editar</button>
+        <button class="BtnEdit" @click="excluir(livro)">Excluir</button>
+        <button class="BtnBorrow" @click="emprestar()">Emprestar</button>
+      </div>
     </div>
   </div>
-  <div class="Bottom"></div>
 </template>
-
 <style scoped>
-.Bottom {
-  height: 10vh;
+.BtnBorrow {
+  border-radius: 5px;
+  margin-right: 10px;
+  margin-top: 10px;
+  background: greenyellow;
+  font-weight: bolder;
 }
-.BoxLivro {
+.BoxInfo {
   width: 100%;
   box-shadow: 0.5px 0.5px 2.5px black;
   padding: 1rem;
@@ -99,17 +142,35 @@ export default {
   margin: 10px;
   margin-left: 10px;
 }
-.LivroInput {
+.FormInput {
   margin-right: 10px;
   margin-bottom: 10px;
   outline: 1px solid black;
-  border-radius: 1px;
+  border-radius: 5px;
+  width: fit-content;
+  max-width: 20vh;
 }
 .BtnSalvar {
-  margin-left: 0.45vh;
+  box-shadow: 0.5px 0.5px 2.5px black;
+  margin-bottom: 1vh;
+  border-radius: 5px;
+  color: #ad00bd;
+  background-color: inherit;
+}
+.BtnSalvar:hover {
+  box-shadow: none;
+  margin-bottom: 1vh;
+  border-radius: 5px;
+  color: #c503d6;
+  background-color: #3030303d;
 }
 .BtnEdit {
-  margin-right: 3px;
-  margin-top: 3px;
+  border-radius: 5px;
+  margin-right: 10px;
+  margin-top: 10px;
+}
+.BtnEdit:hover {
+  background-color: white;
+  color: #303030;
 }
 </style>

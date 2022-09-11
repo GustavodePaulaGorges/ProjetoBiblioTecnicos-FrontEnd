@@ -24,6 +24,11 @@ const router = createRouter({
       name: "editoras",
       component: () => import("../views/CadEditoras.vue"),
     },
+    {
+      path: "/categorias",
+      name: "categorias",
+      component: () => import("../views/CadCategorias.vue")
+    }
   ],
 });
 

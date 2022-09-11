@@ -1,33 +1,33 @@
 import axios from 'axios';
 export default class AutoresApi {
     async BuscarTodosOsAutores() {
-        const response = await axios.get(`http://localhost:4000/authors`);
+        const response = await axios.get(`https://projeto-bibliotecnicos.herokuapp.com/authors`);
         return response.data;
     }
 
     async BuscarAutor(id) {
-        const response = await axios.get(`http://localhost:4000/authors/${id}`);
+        const response = await axios.get(`https://projeto-bibliotecnicos.herokuapp.com/authors/${id}`);
         return response.data;
     }
 
     async AdicionarAutor(autor){
-        const response = await axios.post(`http://localhost:4000/authors`, autor);
+        const response = await axios.post(`https://projeto-bibliotecnicos.herokuapp.com/authors`, autor);
         return response.data;
     }
 
     async ExcluirAutor(id){
-        const response = await axios.delete(`http://localhost:4000/authors/${id}`)
+        const response = await axios.delete(`https://projeto-bibliotecnicos.herokuapp.com/authors/${id}`)
         return response.data
     }
 
     async AtualizarAutor(autor) {
         const response = await axios.put(
-            `http://localhost:4000/authors/${autor.id}`, 
+            `https://projeto-bibliotecnicos.herokuapp.com/authors/${autor.id}`, 
             autor,
         );
         return response.data
     }
 
-
+    
 }
 

@@ -1,5 +1,5 @@
 <script>
-import AutoresApi from "@/api/autores";
+import AutoresApi from "@/api/autores.js";
 const autoresApi = new AutoresApi();
 export default {
   data() {
@@ -57,13 +57,25 @@ export default {
         v-model="autor.idade"
         @keyup.enter="salvar"
       />
+      <input
+        class="FormInput"
+        placeholder="Nacionalidade"
+        type="text"
+        v-model="autor.nacionalidade"
+        @keyup.enter="salvar"
+      />
       <button @click="salvar" class="BtnSalvar">Adicionar</button>
     </div>
     <div class="list-items">
-      <div class="BoxAutores" v-for="autor in autores" :key="autor.id">
+      <div
+        class="BoxInfo"
+        v-for="autor in autores"
+        :key="autor.id"
+      >
         <div>ID: {{ autor.id }}</div>
         <div>Nome: {{ autor.nome }}</div>
         <div>Idade: {{ autor.idade }}</div>
+        <div>Nacionalidade: {{ autor.nacionalidade }}</div>
         <button class="BtnEdit" @click="editar(autor)">Editar</button>
         <button class="BtnEdit" @click="excluir(autor)">Excluir</button>
       </div>
@@ -72,7 +84,7 @@ export default {
 </template>
 
 <style scoped>
-.BoxAutores {
+.BoxInfo {
   width: 100%;
   box-shadow: 0.5px 0.5px 2.5px black;
   padding: 1rem;
@@ -94,14 +106,14 @@ export default {
   margin-bottom: 1vh;
   border-radius: 5px;
   color: #ad00bd;
-  background-color: #181818;
+  background-color: inherit;
 }
 .BtnSalvar:hover {
   box-shadow: none;
   margin-bottom: 1vh;
   border-radius: 5px;
   color: #c503d6;
-  background-color: #303030;
+  background-color: #3030303d;
 }
 .BtnEdit {
   border-radius: 5px;
